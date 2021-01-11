@@ -1,0 +1,11 @@
+{
+  "name": "backend-exer",
+  "version": "0.0.0",
+  "description": "Backend Exercises for CMSC 100 AY 2020-2021 1st Semester",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "DT Pekas",
+  "license": "ISC"
+}
