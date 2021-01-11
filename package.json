@@ -4,7 +4,8 @@
   "description": "Backend Exercises for CMSC 100 AY 2020-2021 1st Semester",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "author": "DT Pekas",
   "license": "ISC"
