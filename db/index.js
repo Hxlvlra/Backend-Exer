@@ -16,4 +16,5 @@ exports.connect = () => new Promise((resolve, reject) => {
   connection.once('open', resolve);
 });
 
+exports.Task = require('./models/task')(mongoose);
 exports.mongoose = mongoose;
