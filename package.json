@@ -4,7 +4,7 @@
   "description": "Backend Exercises for CMSC 100 AY 2020-2021 1st Semester",
   "main": "index.js",
   "scripts": {
-    "test": "npx tap",
+    "test": "npx tap --reporter=spec",
     "start": "npx nodemon"
   },
   "author": "DT Pekas",
