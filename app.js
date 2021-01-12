@@ -1,4 +1,5 @@
 const fastify = require('fastify');
+const { routes } = require('./routes');
 
 /**
  * This is the function to call to initialize the server
@@ -10,16 +11,7 @@ exports.build = async (opts = { logger: true, trustProxy: true }) => {
   // initialize our server using Fastify
   const app = fastify(opts);
 
-  // access root address - http://localhost/
-  app.get('/', {
-    /**
-     * handles the request for a given route
-     */
-    handler: async (req) => {
-      // this is the response in JSON format
-      return { success: true }
-    }
-  });
+  routes(app);
 
   return app;
 };
