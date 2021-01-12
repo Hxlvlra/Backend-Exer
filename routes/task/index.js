@@ -1,4 +1,5 @@
 const { create } = require('./create');
+const { getMany } = require('./get-many');
 
 /**
  * initialize all the routes for task
@@ -7,4 +8,5 @@ const { create } = require('./create');
  */
 exports.task = app => {
   create(app);
+  getMany(app);
 }
