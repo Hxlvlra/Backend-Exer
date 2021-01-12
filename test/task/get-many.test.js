@@ -3,7 +3,7 @@ const { delay } = require('../../lib/delay');
 const { writeFileSync } = require('fs');
 const { join } = require('path');
 const { build } = require('../../app');
-const should = require('should');
+require('should');
 require('tap').mochaGlobals();
 
 describe('For the route for getting many tasks GET: (/task)', () => {
@@ -77,6 +77,33 @@ describe('For the route for getting many tasks GET: (/task)', () => {
       isDone.should.equal(isDoneDatabase);
     }
   });
+
+  it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a limit of 7 items', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/task?limit=7'
+    });
+
+    const payload = response.json();
+    const { statusCode } = response;
+    const { success, data } = payload;
+
+    success.should.equal(true);
+    statusCode.should.equal(200);
+    data.length.should.equal(7);
+
+    const tasks = getTasks(filename, encoding);
+
+    for (const task of data) {
+      const { text, isDone, id } = task;
+      const index = tasks.findIndex(task => task.id === id);
+      index.should.not.equal(-1);
+      const { text: textDatabase, isDone: isDoneDatabase } = tasks[index];
+      text.should.equal(textDatabase);
+      isDone.should.equal(isDoneDatabase);
+    }
+  });
+
 
   it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items and it should be in descending order', async () => {
     const response = await app.inject({
