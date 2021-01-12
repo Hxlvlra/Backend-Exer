@@ -5,7 +5,10 @@ const { build } = require('./app');
  */
 async function start () {
   // calls to build an app
-  const app = await build();
+  const app = await build({
+    logger: true,
+    trustProxy: true
+  });
   // get the port from environment variable
   // if this is the command export PORT=8000 && node index.js
   // then port = 8000 else default is 8080

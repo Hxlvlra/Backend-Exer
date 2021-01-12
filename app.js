@@ -7,7 +7,7 @@ const { routes } = require('./routes');
  * @param {{ logger: boolean, trustProxy: boolean }} opts
  * @returns {*}
  */
-exports.build = async (opts = { logger: true, trustProxy: true }) => {
+exports.build = async (opts = { logger: false, trustProxy: false }) => {
   // initialize our server using Fastify
   const app = fastify(opts);
 
