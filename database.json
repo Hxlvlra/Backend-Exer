@@ -1,0 +1,11 @@
+{
+  "tasks": [
+    {
+      "id": "93fded6e-60fc-431a-80a1-b61a8e5ce6e8",
+      "text": "This is the first task",
+      "isDone": false,
+      "dateCreated": 1610422899633,
+      "dateUpdated": 1610422899633
+    }
+  ]
+}
