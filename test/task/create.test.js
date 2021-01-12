@@ -30,10 +30,9 @@ describe('For the route for creating a task POST: (/task)', () => {
 
       writeFileSync(filename, JSON.stringify({ tasks }, null, 2), encoding);
     }
-
-
   });
 
+  // happy path
   it('it should return { success: true, data: (new task object) } and has a status code of 200 when called using POST', async () => {
     const response = await app.inject({
       method: 'POST',
@@ -95,4 +94,39 @@ describe('For the route for creating a task POST: (/task)', () => {
     // add the id in the ids array for cleaning
     ids.push(id);
   });
+
+  // non-happy path
+  it('it should return { success: false, message: error message } and has a status code of 400 when called using POST and there is no text', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/task',
+      payload: {
+        isDone: true
+      }
+    });
+
+    const payload = response.json();
+    const { statusCode } = response;
+    const { success, message } = payload;
+
+    statusCode.should.equal(400);
+    success.should.equal(false);
+    should.exist(message);
+  })
+
+  // another non-happy
+  it('it should return { success: false, message: error message } and has a status code of 400 when called using POST and there is no payload', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/task'
+    });
+
+    const payload = response.json();
+    const { statusCode } = response;
+    const { success, message } = payload;
+
+    statusCode.should.equal(400);
+    success.should.equal(false);
+    should.exist(message);
+  })
 });

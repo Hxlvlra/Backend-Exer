@@ -19,9 +19,19 @@ exports.create = app => {
       // creates a unique identifier
       const id = uuid();
       const { body } = request;
-      // get text and done with default false from body, regardless if it has
+      // get text and isDone with default false from body, regardless if it has
       // a object value or null, which makes it return an empty object.
-      const { text, isDone = false } = body;
+      const { text, isDone = false } = body || {};
+
+      if (!text) {
+        return response
+          .code(400)
+          .send({
+            success: false,
+            code: 'task/malformed',
+            message: 'Payload doesn\'t have text property'
+          });
+      }
 
       const filename = join(__dirname, '../../database.json');
       const encoding = 'utf8';
