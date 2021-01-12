@@ -189,7 +189,7 @@ describe('For the route for getting many tasks GET: (/task)', () => {
     data[data.length - 1].id.should.equal(id);
   });
 
-  it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items and it should be in descending order where the last item is updated on or before endDateCreated', async () => {
+  it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items and it should be in descending order where the fisrt item is updated on or before endDateCreated', async () => {
     const tasks = getTasks(filename, encoding);
     const id = ids[parseInt(Math.random() * ids.length)];
     const index = tasks.findIndex(task => task.id === id);
@@ -249,7 +249,7 @@ describe('For the route for getting many tasks GET: (/task)', () => {
     data[data.length - 1].id.should.equal(id);
   });
 
-  it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items and it should be in descending order where the last item is updated on or before endDateUpdated', async () => {
+  it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items and it should be in descending order where the first item is updated on or before endDateUpdated', async () => {
     const tasks = getTasks(filename, encoding);
     const id = ids[parseInt(Math.random() * ids.length)];
     const index = tasks.findIndex(task => task.id === id);
