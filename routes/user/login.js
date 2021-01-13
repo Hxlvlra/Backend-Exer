@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const { User } = require('../../db');
 const { definitions } = require('../../definitions');
-const { SuccessResponse, LoginUserRequest } = definitions;
+const { LoginResponse, LoginUserRequest } = definitions;
 
 /**
  * this is the route for creating a user
@@ -16,7 +16,7 @@ exports.login = app => {
       summary: 'Logs in a user',
       body: LoginUserRequest,
       response: {
-        200: SuccessResponse
+        200: LoginResponse
       }
     },
     /**
@@ -36,8 +36,13 @@ exports.login = app => {
         .unauthorized('auth/wrong-password')
       }
 
+      const data = app.jwt.sign({
+        username
+      })
+
       return {
-        success: true
+        success: true,
+        data
       }
     }
   })
