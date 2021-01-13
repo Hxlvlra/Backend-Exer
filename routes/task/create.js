@@ -30,16 +30,6 @@ exports.create = app => {
       // a object value or null, which makes it return an empty object.
       const { text, isDone = false } = body;
 
-/*       if (!text) {
-        return response
-          .code(400)
-          .send({
-            success: false,
-            code: 'task/malformed',
-            message: 'Payload doesn\'t have text property'
-          });
-      } */
-
       const data = new Task({
         text,
         isDone,
