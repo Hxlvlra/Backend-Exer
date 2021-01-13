@@ -71,7 +71,6 @@ describe('For the route for creating a user POST: (/user)', () => {
     const { success, message } = payload;
 
     statusCode.should.equal(400);
-    // success.should.equal(false);
     should.exist(message);
   })
 
@@ -93,7 +92,6 @@ describe('For the route for creating a user POST: (/user)', () => {
       const { success, message } = payload;
   
       statusCode.should.equal(403);
-      // success.should.equal(false);
       should.exist(message);
     })
 
@@ -114,7 +112,6 @@ describe('For the route for creating a user POST: (/user)', () => {
     const { success, message } = payload;
 
     statusCode.should.equal(400);
-    // success.should.equal(false);
     should.exist(message);
   })
 
@@ -135,7 +132,6 @@ describe('For the route for creating a user POST: (/user)', () => {
     const { success, message } = payload;
 
     statusCode.should.equal(400);
-    // success.should.equal(false);
     should.exist(message);
   })
 
@@ -156,7 +152,6 @@ describe('For the route for creating a user POST: (/user)', () => {
       const { success, message } = payload;
   
       statusCode.should.equal(400);
-      // success.should.equal(false);
       should.exist(message);
     })
   
@@ -172,7 +167,6 @@ describe('For the route for creating a user POST: (/user)', () => {
     const { success, message } = payload;
 
     statusCode.should.equal(400);
-    // success.should.equal(false);
     should.exist(message);
   })
 });
