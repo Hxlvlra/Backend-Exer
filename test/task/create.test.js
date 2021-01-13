@@ -1,6 +1,4 @@
-const { getTasks } = require('../../lib/get-tasks');
-const { writeFileSync } = require('fs');
-const { join } = require('path');
+const { mongoose, Task } = require('../../db');
 const { build } = require('../../app');
 require('tap').mochaGlobals();
 const should = require('should');
@@ -8,8 +6,6 @@ const should = require('should');
 describe('For the route for creating a task POST: (/task)', () => {
   let app;
   const ids = [];
-  const filename = join(__dirname, '../../database.json');
-  const encoding = 'utf8';
 
   before(async () => {
     // initialize the backend applicaiton
@@ -18,18 +14,10 @@ describe('For the route for creating a task POST: (/task)', () => {
 
   after(async () => {
     // clean up the database
-    const tasks = getTasks(filename, encoding);
     for (const id of ids) {
-      // find the index
-      const index = tasks.findIndex(task => task.id === id);
-
-      // delete the id
-      if (index >= 0) {
-        tasks.splice(index, 1);
-      }
-
-      writeFileSync(filename, JSON.stringify({ tasks }, null, 2), encoding);
+      await Task.findOneAndDelete({ id });
     }
+    await mongoose.connection.close();
   });
 
   // happy path
@@ -53,10 +41,12 @@ describe('For the route for creating a task POST: (/task)', () => {
     text.should.equal('This is a task');
     isDone.should.equal(false);
 
-    const tasks = getTasks(filename, encoding);
-    const index = tasks.findIndex(task => task.id === id);
-    index.should.not.equal(-1);
-    const { text: textDatabase, isDone: isDoneDatabase } = tasks[index];
+    const {
+      text: textDatabase,
+      isDone: isDoneDatabase
+    } = await Task
+      .findOne({ id })
+      .exec();
     text.should.equal(textDatabase);
     isDone.should.equal(isDoneDatabase);
 
@@ -84,10 +74,12 @@ describe('For the route for creating a task POST: (/task)', () => {
     text.should.equal('This is a task 2');
     //isDone.should.equal(false);
 
-    const tasks = getTasks(filename, encoding);
-    const index = tasks.findIndex(task => task.id === id);
-    index.should.not.equal(-1);
-    const { text: textDatabase, isDone: isDoneDatabase } = tasks[index];
+    const {
+      text: textDatabase,
+      isDone: isDoneDatabase
+    } = await Task
+      .findOne({ id })
+      .exec();
     text.should.equal(textDatabase);
     isDone.should.equal(isDoneDatabase);
 

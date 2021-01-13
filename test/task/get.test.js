@@ -1,7 +1,5 @@
-const { getTasks } = require('../../lib/get-tasks');
+const { mongoose, Task } = require('../../db');
 const { delay } = require('../../lib/delay');
-const { writeFileSync } = require('fs');
-const { join } = require('path');
 const { build } = require('../../app');
 const should = require('should');
 require('tap').mochaGlobals();
@@ -9,8 +7,6 @@ require('tap').mochaGlobals();
 describe('For the route for getting one task GET: (/task/:id)', () => {
   let app;
   const ids = [];
-  const filename = join(__dirname, '../../database.json');
-  const encoding = 'utf8';
 
   before(async () => {
     // initialize the backend applicaiton
@@ -37,18 +33,10 @@ describe('For the route for getting one task GET: (/task/:id)', () => {
 
   after(async () => {
     // clean up the database
-    const tasks = getTasks(filename, encoding);
     for (const id of ids) {
-      // find the index
-      const index = tasks.findIndex(task => task.id === id);
-
-      // delete the id
-      if (index >= 0) {
-        tasks.splice(index, 1);
-      }
-
-      writeFileSync(filename, JSON.stringify({ tasks }, null, 2), encoding);
+      await Task.findOneAndDelete({ id });
     }
+    await mongoose.connection.close();
   });
 
   // happy path
@@ -66,9 +54,10 @@ describe('For the route for getting one task GET: (/task/:id)', () => {
     success.should.equal(true);
     statusCode.should.equal(200);
 
-    const tasks = getTasks(filename, encoding);
-    const index = tasks.findIndex(task => task.id === id);
-    const task = tasks[index];
+    const task = await Task
+      .findOne({ id })
+      .exec();
+
 
     text.should.equal(task.text);
     isDone.should.equal(task.isDone);

@@ -1,7 +1,5 @@
-const { getTasks } = require('../../lib/get-tasks');
+const { mongoose, Task } = require('../../db');
 const { delay } = require('../../lib/delay');
-const { writeFileSync } = require('fs');
-const { join } = require('path');
 const { build } = require('../../app');
 require('should');
 require('tap').mochaGlobals();
@@ -9,8 +7,6 @@ require('tap').mochaGlobals();
 describe('For the route for getting many tasks GET: (/task)', () => {
   let app;
   const ids = [];
-  const filename = join(__dirname, '../../database.json');
-  const encoding = 'utf8';
 
   before(async () => {
     // initialize the backend applicaiton
@@ -37,18 +33,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
 
   after(async () => {
     // clean up the database
-    const tasks = getTasks(filename, encoding);
     for (const id of ids) {
-      // find the index
-      const index = tasks.findIndex(task => task.id === id);
-
-      // delete the id
-      if (index >= 0) {
-        tasks.splice(index, 1);
-      }
-
-      writeFileSync(filename, JSON.stringify({ tasks }, null, 2), encoding);
+      await Task.findOneAndDelete({ id });
     }
+    await mongoose.connection.close();
   });
 
   // happy path
@@ -66,13 +54,15 @@ describe('For the route for getting many tasks GET: (/task)', () => {
     statusCode.should.equal(200);
     data.length.should.equal(10);
 
-    const tasks = getTasks(filename, encoding);
-
     for (const task of data) {
       const { text, isDone, id } = task;
-      const index = tasks.findIndex(task => task.id === id);
-      index.should.not.equal(-1);
-      const { text: textDatabase, isDone: isDoneDatabase } = tasks[index];
+      const {
+        text: textDatabase,
+        isDone: isDoneDatabase
+      } = await Task
+        .findOne({ id })
+        .exec();
+
       text.should.equal(textDatabase);
       isDone.should.equal(isDoneDatabase);
     }
@@ -92,18 +82,19 @@ describe('For the route for getting many tasks GET: (/task)', () => {
     statusCode.should.equal(200);
     data.length.should.equal(7);
 
-    const tasks = getTasks(filename, encoding);
-
     for (const task of data) {
       const { text, isDone, id } = task;
-      const index = tasks.findIndex(task => task.id === id);
-      index.should.not.equal(-1);
-      const { text: textDatabase, isDone: isDoneDatabase } = tasks[index];
+      const {
+        text: textDatabase,
+        isDone: isDoneDatabase
+      } = await Task
+        .findOne({ id })
+        .limit(7)
+        .exec();
       text.should.equal(textDatabase);
       isDone.should.equal(isDoneDatabase);
     }
   });
-
 
   it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items and it should be in descending order', async () => {
     const response = await app.inject({
@@ -120,10 +111,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
     data.length.should.equal(10);
 
     for (let i = 0; i < data.length - 1; i++) {
-      const prevTodo = data[i];
-      const nextTodo = data[i + 1];
+      const prevTask = data[i];
+      const nextTask = data[i + 1];
 
-      (nextTodo.dateUpdated < prevTodo.dateUpdated).should.equal(true);
+      (nextTask.dateUpdated < prevTask.dateUpdated).should.equal(true);
     }
   });
 
@@ -142,28 +133,31 @@ describe('For the route for getting many tasks GET: (/task)', () => {
     data.length.should.equal(10);
 
     for (let i = 0; i < data.length - 1; i++) {
-      const prevTodo = data[i];
-      const nextTodo = data[i + 1];
+      const prevTask = data[i];
+      const nextTask = data[i + 1];
 
-      (nextTodo.dateUpdated < prevTodo.dateUpdated).should.equal(true);
+      (nextTask.dateUpdated < prevTask.dateUpdated).should.equal(true);
     }
 
-    const tasks = getTasks(filename, encoding);
-
-    // sort it in descending order
-    tasks.sort((prev, next) => next.dateUpdated - prev.dateUpdated);
+    const tasks = await Task
+      .find()
+      .limit(10)
+      .sort({
+        dateUpdated: -1
+      })
+      .exec();
 
     const task = tasks[0];
-    const responseTodo = data[0];
+    const responseTask = data[0];
 
-    task.id.should.equal(responseTodo.id);
+    task.id.should.equal(responseTask.id);
   });
 
   it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items and it should be in descending order where the last item is updated on or after startDateCreated', async () => {
-    const tasks = getTasks(filename, encoding);
     const id = ids[parseInt(Math.random() * ids.length)];
-    const index = tasks.findIndex(task => task.id === id);
-    const { dateCreated: startDateCreated } = tasks[index];
+    const { dateUpdated: startDateCreated } = await Task
+      .findOne({ id })
+      .exec();
 
     const response = await app.inject({
       method: 'GET',
@@ -179,10 +173,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
     (data.length <= 10).should.equal(true);
 
     for (let i = 0; i < data.length - 1; i++) {
-      const prevTodo = data[i];
-      const nextTodo = data[i + 1];
+      const prevTask = data[i];
+      const nextTask = data[i + 1];
 
-      (nextTodo.dateCreated < prevTodo.dateCreated).should.equal(true);
+      (nextTask.dateCreated < prevTask.dateCreated).should.equal(true);
     }
 
     // the last data should be equal to the picked id
@@ -190,10 +184,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
   });
 
   it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items and it should be in descending order where the fisrt item is updated on or before endDateCreated', async () => {
-    const tasks = getTasks(filename, encoding);
     const id = ids[parseInt(Math.random() * ids.length)];
-    const index = tasks.findIndex(task => task.id === id);
-    const { dateCreated: endDateCreated } = tasks[index];
+    const { dateUpdated: endDateCreated } = await Task
+      .findOne({ id })
+      .exec();
 
     const response = await app.inject({
       method: 'GET',
@@ -209,10 +203,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
     (data.length <= 10).should.equal(true);
 
     for (let i = 0; i < data.length - 1; i++) {
-      const prevTodo = data[i];
-      const nextTodo = data[i + 1];
+      const prevTask = data[i];
+      const nextTask = data[i + 1];
 
-      (nextTodo.dateCreated < prevTodo.dateCreated).should.equal(true);
+      (nextTask.dateCreated < prevTask.dateCreated).should.equal(true);
     }
 
     // the first data should be equal to the picked id
@@ -220,10 +214,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
   });
 
   it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items and it should be in descending order where the last item is updated on or after startDateUpdated', async () => {
-    const tasks = getTasks(filename, encoding);
     const id = ids[parseInt(Math.random() * ids.length)];
-    const index = tasks.findIndex(task => task.id === id);
-    const { dateUpdated: startDateUpdated } = tasks[index];
+    const { dateUpdated: startDateUpdated } = await Task
+      .findOne({ id })
+      .exec();
 
     const response = await app.inject({
       method: 'GET',
@@ -239,10 +233,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
     (data.length <= 10).should.equal(true);
 
     for (let i = 0; i < data.length - 1; i++) {
-      const prevTodo = data[i];
-      const nextTodo = data[i + 1];
+      const prevTask = data[i];
+      const nextTask = data[i + 1];
 
-      (nextTodo.dateUpdated < prevTodo.dateUpdated).should.equal(true);
+      (nextTask.dateUpdated < prevTask.dateUpdated).should.equal(true);
     }
 
     // the last data should be equal to the picked id
@@ -250,10 +244,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
   });
 
   it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items and it should be in descending order where the first item is updated on or before endDateUpdated', async () => {
-    const tasks = getTasks(filename, encoding);
     const id = ids[parseInt(Math.random() * ids.length)];
-    const index = tasks.findIndex(task => task.id === id);
-    const { dateUpdated: endDateUpdated } = tasks[index];
+    const { dateUpdated: endDateUpdated } = await Task
+      .findOne({ id })
+      .exec();
 
     const response = await app.inject({
       method: 'GET',
@@ -269,13 +263,31 @@ describe('For the route for getting many tasks GET: (/task)', () => {
     (data.length <= 10).should.equal(true);
 
     for (let i = 0; i < data.length - 1; i++) {
-      const prevTodo = data[i];
-      const nextTodo = data[i + 1];
+      const prevTask = data[i];
+      const nextTask = data[i + 1];
 
-      (nextTodo.dateUpdated < prevTodo.dateUpdated).should.equal(true);
+      (nextTask.dateUpdated < prevTask.dateUpdated).should.equal(true);
     }
 
     // the first data should be equal to the picked id
     data[0].id.should.equal(id);
   });
+
+
+  // non happy path
+  it('it should return { success: false, data: message } and has a status code of 400 when called using GET and the limit is 51 items', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/task?limit=51'
+    });
+
+    const payload = response.json();
+    const { statusCode } = response;
+    const { success, message } = payload;
+
+    statusCode.should.equal(400);
+    success.should.equal(false);
+    should.exist(message);
+  });
+
 });
