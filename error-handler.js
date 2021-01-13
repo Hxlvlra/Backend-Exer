@@ -12,6 +12,7 @@ exports.errorHandler = (error, request, response) => {
 
   const errors = {
     'task/not-found': 'Task cannot be found using the given ID',
+    'user/not-found': 'User cannot be found using the given username',
     'request/malformed': 'Payload doesn\'t have the necessary properties',
     'forbidden': "Property value is already in use",
     'auth/wrong-password': 'Password is not correct',
