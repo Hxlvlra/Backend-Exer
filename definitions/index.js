@@ -235,6 +235,16 @@ const GetOneTaskResponse = {
   }
 }
 
+const PutUserRequest = {
+  type: 'object',
+  description: 'User object data for update',
+  properties: {
+    password : PasswordData,
+    firstName: NameData,
+    lastName: NameData,
+    isAdmin: IsAdminData
+  }}
+
 exports.definitions = {
   SuccessResponse,
   GetManyTaskResponse,
@@ -244,6 +254,7 @@ exports.definitions = {
   PostTaskRequest,
   PutTaskRequest,
   PostUserRequest,
+  PutUserRequest,
   GetOneUserParams,
   GetOneUserResponse,
   LoginUserRequest,
