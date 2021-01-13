@@ -194,7 +194,7 @@ describe('For the route for getting many tasks GET: (/task)', () => {
 
   it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items and it should be in descending order where the last item is updated on or after startDateCreated', async () => {
     const id = ids[parseInt(Math.random() * ids.length)];
-    const { dateUpdated: startDateCreated } = await Task
+    const { dateCreated: startDateCreated } = await Task
       .findOne({ id })
       .exec();
 
@@ -227,7 +227,7 @@ describe('For the route for getting many tasks GET: (/task)', () => {
 
   it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items and it should be in descending order where the fisrt item is updated on or before endDateCreated', async () => {
     const id = ids[parseInt(Math.random() * ids.length)];
-    const { dateUpdated: endDateCreated } = await Task
+    const { dateCreated: endDateCreated } = await Task
       .findOne({ id })
       .exec();
 
