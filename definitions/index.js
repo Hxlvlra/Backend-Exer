@@ -86,6 +86,75 @@ const GetOneTaskParams = {
   }
 }
 
+const UsernameData = {
+  type: 'string',
+  description: 'A unique username',
+  value: 'hxlvlra',
+  example: 'hxlvlra'
+};
+
+const PasswordData = {
+  type: 'string',
+  description: 'Password string',
+  value: '93fded6e93fded6e',
+  example: '93fded6e93fded6e'
+}
+
+const NameData = {
+  type: 'string',
+  description: 'Name string',
+  value: 'David',
+  example: 'David'
+};
+
+const IsAdminData = {
+  type: 'boolean',
+  description: 'If the user is an admin',
+  value: false,
+  example: false
+}
+
+const UserFullData = {
+  type: 'object',
+  description: 'User data for response without the password',
+  properties: {
+    username: UsernameData,
+    firstName: NameData,
+    lastName: NameData,
+    dateUpdated: DateData,
+    dateCreated: DateData,
+    isAdmin: IsAdminData
+  }
+}
+
+const GetOneUserResponse = {
+  type: 'object',
+  description: 'Returns a a user',
+  required: ['success', 'data'],
+  properties: {
+    success: SuccessData,
+    data: UserFullData
+  }
+}
+
+const PostUserRequest = {
+  type: 'object',
+  description: 'User object data for creation',
+  required: [
+    'username',
+    'password', 
+    'firstName',
+    'lastName'
+  ],
+  properties: {
+    username: UsernameData,
+    password: PasswordData,
+    firstName: NameData,
+    lastName: NameData,
+    isAdmin: IsAdminData
+  }
+}
+
 const GetManyTaskResponse = {
   type: 'object',
   description: 'Returns a list of tasks',
@@ -134,5 +203,7 @@ exports.definitions = {
   GetOneTaskParams,
   GetOneTaskResponse,
   PostTaskRequest,
-  PutTaskRequest
+  PutTaskRequest,
+  PostUserRequest,
+  GetOneUserResponse
 }
