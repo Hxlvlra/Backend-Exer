@@ -168,6 +168,23 @@ const LoginUserRequest = {
   }
 }
 
+const JWTData = {
+  type: 'string',
+  description: 'A JSON Web Token',
+  value: '1325cff1-8f82-46f6-843a-ceaf6d571248',
+  example: '1325cff1-8f82-46f6-843a-ceaf6d571248'
+}
+
+const LoginResponse = {
+  type: 'object',
+  description: 'Returns a JWT data',
+  required: ['success', 'data'],
+  properties: {
+    success: SuccessData,
+    data: JWTData
+  }
+}
+
 const GetManyTaskResponse = {
   type: 'object',
   description: 'Returns a list of tasks',
@@ -219,5 +236,6 @@ exports.definitions = {
   PutTaskRequest,
   PostUserRequest,
   GetOneUserResponse,
-  LoginUserRequest
+  LoginUserRequest,
+  LoginResponse
 }
