@@ -1,33 +1,19 @@
-const { v4: uuid } = require('uuid');
-
 /**
- * This exports the model for todo
+ * This exports the model for discarded tokens
  * @param {import('mongoose').Mongoose} mongoose
  */
 module.exports = (mongoose) => {
   const { Schema } = mongoose;
 
-  const taskSchema = new Schema({
-    id: {
-      type: String,
-      immutable: true,
-      index: true,
-      unique: true,
-      default: uuid
-    },
+  const discardedTokenSchema = new Schema({
     username: {
       type: String,
       required: true,
       index: true
     },
-    text: {
+    token: {
       type: String,
       required: true
-    },
-    isDone: {
-      type: Boolean,
-      required: true,
-      default: false
     },
     dateCreated: {
       type: Number,
@@ -41,5 +27,5 @@ module.exports = (mongoose) => {
     }
   });
 
-  return mongoose.model('Task', taskSchema);
+  return mongoose.model('DiscardedToken', discardedTokenSchema);
 };

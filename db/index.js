@@ -18,4 +18,5 @@ exports.connect = () => new Promise((resolve, reject) => {
 
 exports.Task = require('./models/task')(mongoose);
 exports.User = require('./models/user')(mongoose);
+exports.DiscardedToken = require('./models/discarded-tokens')(mongoose);
 exports.mongoose = mongoose;
