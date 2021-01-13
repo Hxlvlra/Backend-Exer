@@ -1,12 +1,14 @@
 const fastify = require('fastify');
 const swagger = require('fastify-swagger');
 const sensible = require('fastify-sensible');
+const auth = require('fastify-auth');
 const jwt = require('fastify-jwt');
 const { readFileSync } = require('fs');
 const { errorHandler } = require('./error-handler.js');
 const { definitions } = require ('./definitions')
 const { routes } = require('./routes');
 const { connect } = require('./db');
+const { connect, User } = require('./db');
 const { name: title, description, version } = require ('./package.json');
 
 const audience = 'this-audience';
@@ -39,10 +41,52 @@ exports.build = async (opts = { logger: false, trustProxy: false }) => {
     }
   });
 
-
   app.register(sensible).after(() => {
     app.setErrorHandler(errorHandler);
   });
+
+  await app
+  .decorate('verifyJWT', async (request, response) => {
+    const { headers } = request;
+    const { authorization } = headers;
+
+    let authorizationToken;
+
+    if (!authorization) {
+      return response.unauthorized('auth/no-authorization-header')
+    }
+
+    if (authorization) {
+      // expecting to have the authorization to be "Bearer [token]"
+      // that means if we split it, we create '' (Bearer ) 'token'
+      // then we just get the second element of that array
+      [, authorizationToken] = authorization.split('Bearer ');
+    }
+
+    const token = authorizationToken;
+
+    try {
+      await app.jwt.verify(token);
+      const { username } = app.jwt.decode(token);
+
+      const user = await User.findOne({ username }).exec();
+
+      if (!user) {
+        return response.unauthorized('auth/no-user');
+      }
+
+      request.user = user;
+      request.token = token;
+    } catch (error) {
+      console.error(error);
+
+      if (error.message === 'jwt expired') {
+        return response.unauthorized('auth/expired');
+      }
+      return response.unauthorized('auth/unauthorized');
+    }
+  })
+  .register(auth);
 
   app.register(swagger, {
     routePrefix: '/docs',
@@ -56,7 +100,17 @@ exports.build = async (opts = { logger: false, trustProxy: false }) => {
       schemes: ['http', 'https'],
       consume: ['application/json'],
       produce: ['application/json'],
-      definitions 
+      definitions,
+      securityDefinitions: {
+        bearer: {
+          type: 'apiKey',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'authorization',
+          in: 'header'
+        }
+      }
+
     }
   })
 
