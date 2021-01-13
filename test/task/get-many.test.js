@@ -61,7 +61,7 @@ describe('For the route for getting many tasks GET: (/task)', () => {
     for (const id of ids) {
       await Task.findOneAndDelete({ id });
     }
-    await User.findOneAndDelete({ username: 'maybeuser1' });
+    await User.findOneAndDelete({ username: 'maybeuser' });
     await mongoose.connection.close();
   });
 

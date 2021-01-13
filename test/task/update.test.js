@@ -61,7 +61,7 @@ describe('For the route for updating one task PUT: (/task/:id)', () => {
     for (const id of ids) {
       await Task.findOneAndDelete({ id });
     }
-    await User.findOneAndDelete({ username: 'testuser1' });
+    await User.findOneAndDelete({ username: 'testuser' });
     await mongoose.connection.close();
   });
 

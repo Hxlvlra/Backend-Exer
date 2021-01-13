@@ -61,7 +61,7 @@ describe('For the route for getting one task GET: (/task/:id)', () => {
     for (const id of ids) {
       await Task.findOneAndDelete({ id });
     }
-    await User.findOneAndDelete({ username: 'notauser1' });
+    await User.findOneAndDelete({ username: 'notauser' });
     await mongoose.connection.close();
   });
 
@@ -86,7 +86,6 @@ describe('For the route for getting one task GET: (/task/:id)', () => {
     const task = await Task
       .findOne({ id })
       .exec();
-
 
     text.should.equal(task.text);
     isDone.should.equal(task.isDone);

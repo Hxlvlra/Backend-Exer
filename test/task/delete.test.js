@@ -62,7 +62,7 @@ describe('For the route for deleting one task DELETE: (/task/:id)', () => {
     for (const id of ids) {
       await Task.findOneAndDelete({ id });
     }
-    await User.findOneAndDelete({ username: 'trialuser1' });
+    await User.findOneAndDelete({ username: 'trialuser' });
     await mongoose.connection.close();
   });
 
