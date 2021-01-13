@@ -7,7 +7,6 @@ const { readFileSync } = require('fs');
 const { errorHandler } = require('./error-handler.js');
 const { definitions } = require ('./definitions')
 const { routes } = require('./routes');
-const { connect } = require('./db');
 const { connect, User } = require('./db');
 const { name: title, description, version } = require ('./package.json');
 
