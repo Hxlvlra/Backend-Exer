@@ -33,6 +33,13 @@ const SuccessData = {
   example: true
 };
 
+const UsernameData = {
+  type: 'string',
+  description: 'A unique username',
+  value: 'hxlvlra',
+  example: 'hxlvlra'
+};
+
 const LimitData = {
   type: 'number',
   description: 'Limit of how many items we should query',
@@ -86,13 +93,6 @@ const GetOneTaskParams = {
     id: UniqueIDData
   }
 }
-
-const UsernameData = {
-  type: 'string',
-  description: 'A unique username',
-  value: 'hxlvlra',
-  example: 'hxlvlra'
-};
 
 const PasswordData = {
   type: 'string',

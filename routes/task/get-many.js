@@ -37,17 +37,15 @@ exports.getMany = app => {
       const { username } = user;
       const { limit = 10, startDateCreated, endDateCreated, startDateUpdated, endDateUpdated } = query;
 
-      const options = {
-        username
-      };
-
       if (parseInt(limit) > 50) {
         return response
         .badRequest('request/malformed');
       }
 
-      const options = {};
-
+      const options = {
+        username
+      };
+      
       if (startDateCreated) {
         options.dateCreated = {};
         options.dateCreated.$gte = startDateCreated;
