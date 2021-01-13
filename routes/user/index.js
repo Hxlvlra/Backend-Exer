@@ -2,9 +2,11 @@ const { create } = require('./create');
 const { login } = require('./login');
 const { logout } = require('./logout');
 const { auth } = require('./auth');
-const { get } = require('./get')
+const { get } = require('./get');
 const { getMany } = require('./get-many');
-const { deleteOne } = require('./delete')
+const { deleteOne } = require('./delete');
+const { update } = require('./update');
+
 
 /**
  * initialize all the routes for todo
@@ -19,4 +21,5 @@ exports.user = app => {
   get(app);
   getMany(app);
   deleteOne(app);
+  update(app);
 }
