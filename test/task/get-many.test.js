@@ -1,4 +1,4 @@
-const { mongoose, Task } = require('../../db');
+const { mongoose, Task, User  } = require('../../db');
 const { delay } = require('../../lib/delay');
 const { build } = require('../../app');
 require('should');
@@ -11,11 +11,36 @@ describe('For the route for getting many tasks GET: (/task)', () => {
   before(async () => {
     // initialize the backend applicaiton
     app = await build();
+    await app.inject({
+      method: 'POST',
+      url: '/user',
+      payload: {
+        username: 'maybeuser',
+        password: 'password1234567890',
+        firstName: 'Mock',
+        lastName: 'Name'
+      }
+    });
 
-    for (let i = 0; i < 5; i++) {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/login',
+      payload: {
+        username: 'maybeuser',
+        password: 'password1234567890',
+      }
+    });
+    const { data: token } = response.json();
+
+    authorization = `Bearer ${token}`;
+
+    for (let i = 0; i < 11; i++) {
       const response = await app.inject({
         method: 'POST',
         url: '/task',
+        headers: {
+          authorization
+        },  
         payload: {
           text: `Task ${i}`,
           isDone: false
@@ -36,6 +61,7 @@ describe('For the route for getting many tasks GET: (/task)', () => {
     for (const id of ids) {
       await Task.findOneAndDelete({ id });
     }
+    await User.findOneAndDelete({ username: 'maybeuser1' });
     await mongoose.connection.close();
   });
 
@@ -43,7 +69,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
   it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: '/task'
+      url: '/task',
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -52,7 +81,7 @@ describe('For the route for getting many tasks GET: (/task)', () => {
 
     success.should.equal(true);
     statusCode.should.equal(200);
-    data.length.should.equal(10);
+    (data.length <= 10).should.equal(true);
 
     for (const task of data) {
       const { text, isDone, id } = task;
@@ -71,7 +100,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
   it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a limit of 7 items', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: '/task?limit=7'
+      url: '/task?limit=7',
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -80,7 +112,7 @@ describe('For the route for getting many tasks GET: (/task)', () => {
 
     success.should.equal(true);
     statusCode.should.equal(200);
-    data.length.should.equal(7);
+    (data.length <= 7).should.equal(true);
 
     for (const task of data) {
       const { text, isDone, id } = task;
@@ -99,7 +131,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
   it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items and it should be in descending order', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: '/task'
+      url: '/task',
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -108,7 +143,7 @@ describe('For the route for getting many tasks GET: (/task)', () => {
 
     success.should.equal(true);
     statusCode.should.equal(200);
-    data.length.should.equal(10);
+    (data.length <= 10).should.equal(true);
 
     for (let i = 0; i < data.length - 1; i++) {
       const prevTask = data[i];
@@ -121,7 +156,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
   it('it should return { success: true, data: array of tasks } and has a status code of 200 when called using GET and has a default limit of 10 items and it should be in descending order where the first item should be the latest updated item in the database', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: '/task'
+      url: '/task',
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -130,7 +168,7 @@ describe('For the route for getting many tasks GET: (/task)', () => {
 
     success.should.equal(true);
     statusCode.should.equal(200);
-    data.length.should.equal(10);
+    (data.length <= 10).should.equal(true);
 
     for (let i = 0; i < data.length - 1; i++) {
       const prevTask = data[i];
@@ -161,7 +199,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
 
     const response = await app.inject({
       method: 'GET',
-      url: `/task?startDateCreated=${startDateCreated}`
+      url: `/task?startDateCreated=${startDateCreated}`,
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -191,7 +232,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
 
     const response = await app.inject({
       method: 'GET',
-      url: `/task?endDateCreated=${endDateCreated}`
+      url: `/task?endDateCreated=${endDateCreated}`,
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -221,7 +265,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
 
     const response = await app.inject({
       method: 'GET',
-      url: `/task?startDateUpdated=${startDateUpdated}`
+      url: `/task?startDateUpdated=${startDateUpdated}`,
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -251,7 +298,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
 
     const response = await app.inject({
       method: 'GET',
-      url: `/task?endDateUpdated=${endDateUpdated}`
+      url: `/task?endDateUpdated=${endDateUpdated}`,
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -278,7 +328,10 @@ describe('For the route for getting many tasks GET: (/task)', () => {
   it('it should return { success: false, data: message } and has a status code of 400 when called using GET and the limit is 51 items', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: '/task?limit=51'
+      url: '/task?limit=51',
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();

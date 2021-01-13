@@ -1,4 +1,4 @@
-const { mongoose, Task } = require('../../db');
+const { mongoose, Task, User  } = require('../../db');
 const { delay } = require('../../lib/delay');
 const { build } = require('../../app');
 const should = require('should');
@@ -11,11 +11,36 @@ describe('For the route for updating one task PUT: (/task/:id)', () => {
   before(async () => {
     // initialize the backend applicaiton
     app = await build();
+    await app.inject({
+      method: 'POST',
+      url: '/user',
+      payload: {
+        username: 'testuser',
+        password: 'password1234567890',
+        firstName: 'Mock',
+        lastName: 'Name'
+      }
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/login',
+      payload: {
+        username: 'testuser',
+        password: 'password1234567890',
+      }
+    });
+    const { data: token } = response.json();
+
+    authorization = `Bearer ${token}`;
 
     for (let i = 0; i < 7; i++) {
       const response = await app.inject({
         method: 'POST',
         url: '/task',
+        headers: {
+          authorization
+        },
         payload: {
           text: `Task ${i}`,
           isDone: false
@@ -36,6 +61,7 @@ describe('For the route for updating one task PUT: (/task/:id)', () => {
     for (const id of ids) {
       await Task.findOneAndDelete({ id });
     }
+    await User.findOneAndDelete({ username: 'testuser1' });
     await mongoose.connection.close();
   });
 
@@ -43,7 +69,9 @@ describe('For the route for updating one task PUT: (/task/:id)', () => {
   it('it should return { success: true, data: task } and has a status code of 200 when called using PUT and updates the item', async () => {
     const response = await app.inject({
       method: 'PUT',
-      url: `/task/${ids[0]}`,
+      url: `/task/${ids[0]}`,        headers: {
+        authorization
+      },
       payload: {
         text: 'New Task',
         isDone: true
@@ -74,6 +102,9 @@ describe('For the route for updating one task PUT: (/task/:id)', () => {
     const response = await app.inject({
       method: 'PUT',
       url: `/task/${ids[2]}`,
+      headers: {
+        authorization
+      },
       payload: {
         text: 'New Taskmaster'
       }
@@ -103,6 +134,9 @@ describe('For the route for updating one task PUT: (/task/:id)', () => {
     const response = await app.inject({
       method: 'PUT',
       url: `/task/${ids[4]}`,
+      headers: {
+        authorization
+      },
       payload: {
         isDone: true
       }
@@ -131,6 +165,9 @@ describe('For the route for updating one task PUT: (/task/:id)', () => {
     const response = await app.inject({
       method: 'PUT',
       url: `/task/non-existing-id`,
+      headers: {
+        authorization
+      },
       payload: {
         text: 'New Text for Task',
         isDone: true
@@ -151,7 +188,10 @@ describe('For the route for updating one task PUT: (/task/:id)', () => {
   it('it should return { success: false, message: error message } and has a status code of 400 when called using PUT and we didn\'t put a payload', async () => {
     const response = await app.inject({
       method: 'PUT',
-      url: `/task/${ids[6]}`
+      url: `/task/${ids[6]}`,
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -167,6 +207,9 @@ describe('For the route for updating one task PUT: (/task/:id)', () => {
     const response = await app.inject({
       method: 'PUT',
       url: `/task/${ids[1]}`,
+      headers: {
+        authorization
+      },
       payload: {}
     });
 

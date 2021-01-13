@@ -1,15 +1,39 @@
-const { mongoose, Task } = require('../../db');
+const { mongoose, Task, User  } = require('../../db');
 const { build } = require('../../app');
 require('tap').mochaGlobals();
 const should = require('should');
 
 describe('For the route for creating a task POST: (/task)', () => {
   let app;
+  let authorization = '';
   const ids = [];
 
   before(async () => {
     // initialize the backend applicaiton
     app = await build();
+
+    await app.inject({
+      method: 'POST',
+      url: '/user',
+      payload: {
+        username: 'mockuser',
+        password: 'password1234567890',
+        firstName: 'Mock',
+        lastName: 'Name'
+      }
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/login',
+      payload: {
+        username: 'mockuser',
+        password: 'password1234567890',
+      }
+    });
+    const { data: token } = response.json();
+
+    authorization = `Bearer ${token}`;
   });
 
   after(async () => {
@@ -17,6 +41,8 @@ describe('For the route for creating a task POST: (/task)', () => {
     for (const id of ids) {
       await Task.findOneAndDelete({ id });
     }
+    await User.findOneAndDelete({ username: 'mockuser' });
+
     await mongoose.connection.close();
   });
 
@@ -25,6 +51,9 @@ describe('For the route for creating a task POST: (/task)', () => {
     const response = await app.inject({
       method: 'POST',
       url: '/task',
+      headers: {
+        authorization
+      },
       payload: {
         text: 'This is a task',
         isDone: false
@@ -59,6 +88,9 @@ describe('For the route for creating a task POST: (/task)', () => {
     const response = await app.inject({
       method: 'POST',
       url: '/task',
+      headers: {
+        authorization
+      },
       payload: {
         text: 'This is a task 2'
       }
@@ -72,7 +104,7 @@ describe('For the route for creating a task POST: (/task)', () => {
     success.should.equal(true);
     statusCode.should.equal(200);
     text.should.equal('This is a task 2');
-    //isDone.should.equal(false);
+    isDone.should.equal(false);
 
     const {
       text: textDatabase,
@@ -92,6 +124,9 @@ describe('For the route for creating a task POST: (/task)', () => {
     const response = await app.inject({
       method: 'POST',
       url: '/task',
+      headers: {
+        authorization
+      },
       payload: {
         isDone: true
       }
@@ -102,7 +137,7 @@ describe('For the route for creating a task POST: (/task)', () => {
     const { success, message } = payload;
 
     statusCode.should.equal(400);
-    //success.should.equal(false);
+    success.should.equal(false);
     should.exist(message);
   })
 
@@ -110,7 +145,10 @@ describe('For the route for creating a task POST: (/task)', () => {
   it('it should return { success: false, message: error message } and has a status code of 400 when called using POST and there is no payload', async () => {
     const response = await app.inject({
       method: 'POST',
-      url: '/task'
+      url: '/task',
+      headers: {
+        authorization
+      }
     });
 
     const payload = response.json();
@@ -118,7 +156,7 @@ describe('For the route for creating a task POST: (/task)', () => {
     const { success, message } = payload;
 
     statusCode.should.equal(400);
-    //success.should.equal(false);
+    success.should.equal(false);
     should.exist(message);
   })
 });
