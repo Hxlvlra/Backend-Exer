@@ -1,4 +1,5 @@
 const { task } = require('./task')
+const { user } = require('./user');
 const { definitions } = require('../definitions');
 const { SuccessResponse } = definitions;
 
@@ -28,4 +29,5 @@ exports.routes = app => {
   });
 
   task(app);
+  user(app);
 }
