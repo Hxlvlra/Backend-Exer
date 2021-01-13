@@ -79,4 +79,24 @@ describe('For the route for creating a user POST: (/user)', () => {
     success.should.equal(false);
     should.exist(message);
   })
+
+  // non-happy path
+  it('it should return { success: false, message: error message } and has a status code of 401 when called using POST and username is non-existent', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/login',
+      payload: {
+        username: 'non-existent user',
+        password: 'password123',
+      }
+    });
+
+    const payload = response.json();
+    const { statusCode } = response;
+    const { success, message } = payload;
+
+    statusCode.should.equal(401);
+    success.should.equal(false);
+    should.exist(message);
+  })
 });
