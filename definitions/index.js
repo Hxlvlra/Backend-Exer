@@ -86,6 +86,14 @@ const GetManyTaskQuery = {
   }
 };
 
+const GetOneUserParams = {
+  type: 'object',
+  description: 'Parameter for getting one user',
+  properties: {
+    username: UsernameData
+  }
+}
+
 const GetOneTaskParams = {
   type: 'object',
   description: 'Parameter for getting one tasks',
@@ -236,6 +244,7 @@ exports.definitions = {
   PostTaskRequest,
   PutTaskRequest,
   PostUserRequest,
+  GetOneUserParams,
   GetOneUserResponse,
   LoginUserRequest,
   LoginResponse
