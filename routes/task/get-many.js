@@ -1,5 +1,4 @@
-const { getTasks } = require('../../lib/get-tasks');
-const { join } = require('path');
+const { Task } = require('../../db');
 
 /**
  * Gets many tasks
@@ -11,85 +10,117 @@ exports.getMany = app => {
    * This gets the tasks from the database
    *
    * @param {import('fastify').FastifyRequest} request
+   * @param {import('fastify').FastifyReply<Response>} response
    */
-  app.get('/task', (request) => {
+  app.get('/task', async (request, response) => {
     const { query } = request;
     const { limit = 10, startDateCreated, endDateCreated, startDateUpdated, endDateUpdated } = query;
-    const encoding = 'utf8';
-    const filename = join(__dirname, '../../database.json');
-    const tasks = getTasks(filename, encoding);
-    const data = [];
 
-    if (limit > 50) {
+    if (parseInt(limit) > 50) {
       return response
-        .code(400)
-        .send({
-          success: false,
-          code: 'task/malformed',
-          message: 'Query limit exceeds 50'
-        });
-    }
-
-    if (!startDateCreated || !endDateCreated) {
-      // if there is no startDate, we should sort the todos in a
-      // descending order based on dateUpdated
-      tasks.sort((prev, next) => next.dateUpdated - prev.dateUpdated);
-    } else {
-      // sorts the todos in an ascending order based on dateCreated
-      tasks.sort((prev, next) => next.dateCreated - prev.dateCreated);
-    }
-
-    // if there are no pagination asked, we sort the tasks in a
-    // descending order based on dateUpdated
-    // else, check if the task completes the pagination requirement
-    for (const task of tasks) {
-      if (data.length < limit) {
-        if (!startDateCreated && !endDateCreated && !startDateUpdated && !endDateUpdated) {
-          data.push(task);
-        } else if(!startDateCreated && !endDateCreated && !startDateUpdated && endDateUpdated >= task.dateUpdated){
-          data.push(task);
-        } else if(!startDateCreated && !endDateCreated && startDateUpdated <= task.dateUpdated && !endDateUpdated){
-          data.push(task);
-        } else if(!startDateCreated && endDateCreated >= task.dateCreated && !startDateUpdated && !endDateUpdated){
-          data.push(task);
-        } else if(!startDateCreated && !endDateCreated && startDateUpdated <= task.dateUpdated && endDateUpdated >= task.dateUpdated){
-          data.push(task);
-        } else if(!startDateCreated && endDateCreated >= task.dateCreated && startDateUpdated <= task.dateUpdated && !endDateUpdated){
-          data.push(task);
-        } else if(!startDateCreated && endDateCreated >= task.dateCreated && !startDateUpdated && endDateUpdated >= task.dateUpdated){
-          data.push(task);
-        } else if(!startDateCreated && endDateCreated >= task.dateCreated && startDateUpdated <= task.dateUpdate && endDateUpdated >= task.dateUpdated){
-          data.push(task);
-        } else if (startDateCreated <= task.dateCreated){
-          if (!endDateCreated && !startDateUpdated && !endDateUpdated) {
-            data.push(task);
-          } else if(!endDateCreated && !startDateUpdated && endDateUpdated >= task.dateUpdated){
-            data.push(task);
-          } else if(!endDateCreated && startDateUpdated <= task.dateUpdated && !endDateUpdated){
-            data.push(task);
-          } else if(endDateCreated >= task.dateCreated && !startDateUpdated && !endDateUpdated){
-            data.push(task);
-          } else if(!endDateCreated && startDateUpdated <= task.dateUpdated && endDateUpdated >= task.dateUpdated){
-            data.push(task);
-          } else if(endDateCreated >= task.dateCreated && startDateUpdated <= task.dateUpdated && !endDateUpdated){
-            data.push(task);
-          } else if(endDateCreated >= task.dateCreated && !startDateUpdated && endDateUpdated >= task.dateUpdated){
-            data.push(task);
-          } else if (endDateCreated >= task.dateCreated && startDateUpdated <= task.dateUpdate && endDateUpdated >= task.dateUpdated){
-            data.push(task);
-          }
-        }
-      }
-    }
-
-    // if we want to sort it in a descending order, 
-    // we should put next first and subtract it with the previous.
-    data.sort((prev, next) => next.dateUpdated - prev.dateUpdated);
-
-    return {
-      success: true,
-      data
+      .code(400)
+      .send({
+        success: false,
+        code: 'task/malformed',
+        message: 'Query Limit exceeds 50'
+      });
     };
+
+    // if there is are parameters, the query should search the corresponding property
+    // if the property meets the criteria
+    //
+    // if there is no startDate, it will search for all given the limit
+    const options = startDateCreated || endDateCreated || startDateUpdated || endDateUpdated
+    ? startDateCreated 
+        ? endDateCreated 
+          ? startDateUpdated
+            ? endDateUpdated
+              ? {
+                dateCreated: { $gte: startDateCreated },
+                dateCreated: { $lte: endDateCreated },
+                dateUpdated: { $gte: startDateUpdated },
+                dateUpdated: { $lte: endDateUpdated }
+              }
+              : {
+                dateCreated: { $gte: startDateCreated },
+                dateCreated: { $lte: endDateCreated },
+                dateUpdated: { $gte: startDateUpdated }
+              }
+           : endDateUpdated
+            ? {
+              dateCreated: { $gte: startDateCreated },
+              dateCreated: { $lte: endDateCreated },
+              dateUpdated: { $lte: endDateUpdated }
+            }
+            : {
+              dateCreated: { $gte: startDateCreated },
+              dateCreated: { $lte: endDateCreated }
+             }
+          : startDateUpdated
+            ? endDateUpdated
+              ? {
+                dateCreated: { $gte: startDateCreated },
+                dateUpdated: { $gte: startDateUpdated },
+                dateUpdated: { $lte: endDateUpdated }
+              }
+              : {
+                dateCreated: { $gte: startDateCreated },
+                dateUpdated: { $gte: startDateUpdated }
+              }
+            : endDateUpdated
+              ? {
+                dateCreated: { $gte: startDateCreated },
+                dateUpdated: { $lte: endDateUpdated }
+              }
+              : {
+                dateCreated: { $gte: startDateCreated }
+              }
+    : endDateCreated 
+      ? startDateUpdated
+        ? endDateUpdated
+          ? {
+            dateCreated: { $lte: endDateCreated },
+            dateUpdated: { $gte: startDateUpdated },
+            dateUpdated: { $lte: endDateUpdated }
+          }
+          : {
+            dateCreated: { $lte: endDateCreated },
+            dateUpdated: { $gte: startDateUpdated }
+          }
+      : endDateUpdated
+        ? {
+          dateCreated: { $lte: endDateCreated },
+          dateUpdated: { $lte: endDateUpdated }
+        }
+        : {
+          dateCreated: { $lte: endDateCreated }
+        }
+      : startDateUpdated
+        ? endDateUpdated
+          ? {
+            dateUpdated: { $gte: startDateUpdated },
+            dateUpdated: { $lte: endDateUpdated }
+          }
+          : {
+            dateUpdated: { $gte: startDateUpdated }
+          }
+        : {
+          dateUpdated: { $lte: endDateUpdated }
+        }
+  : { };
+
+  const data = await Task
+    .find(options)
+    .limit(parseInt(limit))
+    .sort({
+      dateUpdated: -1
+    })
+    .exec();
+
+  return {
+    success: true,
+    data
+  };
   });
 };
   

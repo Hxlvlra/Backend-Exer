@@ -1,5 +1,4 @@
-const { getTasks } = require('../../lib/get-tasks');
-const { join } = require('path');
+const { Task } = require('../../db');
 
 /**
  * Gets one task
@@ -13,18 +12,14 @@ exports.get = app => {
    * @param {import('fastify').FastifyRequest} request
    * @param {import('fastify').FastifyReply<Response>} response
    */
-  app.get('/task/:id', (request, response) => {
+  app.get('/task/:id', async (request, response) => {
 
     const { params } = request;
     const { id } = params;
 
-    const encoding = 'utf8';
-    const filename = join(__dirname, '../../database.json');
-    const tasks = getTasks(filename, encoding);
+    const data = await Task.findOne({ id }).exec();
 
-    const index = tasks.findIndex(task => task.id === id);
-
-    if (index < 0) {
+    if (!data) {
       return response
         .code(404)
         .send({
@@ -33,8 +28,6 @@ exports.get = app => {
           message: 'Task doesn\'t exist'
         });
     }
-
-    const data = tasks[index];
 
     return {
       success: true,
