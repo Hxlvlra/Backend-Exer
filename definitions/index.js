@@ -155,6 +155,19 @@ const PostUserRequest = {
   }
 }
 
+const LoginUserRequest = {
+  type: 'object',
+  description: 'User object data for login',
+  required: [
+    'username',
+    'password', 
+  ],
+  properties: {
+    username: UsernameData,
+    password: PasswordData,
+  }
+}
+
 const GetManyTaskResponse = {
   type: 'object',
   description: 'Returns a list of tasks',
@@ -205,5 +218,6 @@ exports.definitions = {
   PostTaskRequest,
   PutTaskRequest,
   PostUserRequest,
-  GetOneUserResponse
+  GetOneUserResponse,
+  LoginUserRequest
 }

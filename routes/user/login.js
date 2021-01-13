@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const { User } = require('../../db');
 const { definitions } = require('../../definitions');
-const { SuccessResponse, PostUserRequest } = definitions;
+const { SuccessResponse, LoginUserRequest } = definitions;
 
 /**
  * this is the route for creating a user
@@ -14,7 +14,7 @@ exports.login = app => {
       description: 'Logs in a user',
       tags: ['User'],
       summary: 'Logs in a user',
-      body: PostUserRequest,
+      body: LoginUserRequest,
       response: {
         200: SuccessResponse
       }
