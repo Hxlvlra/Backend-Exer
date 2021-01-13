@@ -37,10 +37,6 @@ describe('For the route for getting one task GET: (/task/:id)', () => {
   });
 
   after(async () => {
-    // clean up the database
-    for (const id of ids) {
-      await Task.findOneAndDelete({ id });
-    }
     await User.findOneAndDelete({ username: 'alsoAUser' });
     await mongoose.connection.close();
   });
