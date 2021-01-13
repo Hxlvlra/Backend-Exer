@@ -1,4 +1,6 @@
 const { Task } = require('../../db');
+const { definitions } = require('../../definitions');
+const { GetOneTaskResponse, PostTaskRequest } = definitions;
 
 /**
  * this is the route for creating tasks
@@ -7,6 +9,15 @@ const { Task } = require('../../db');
  */
 exports.create = app => {
   app.post('/task', {
+    schema: {
+      description: 'Create one task',
+      tags: ['Task'],
+      summary: 'Create one task',
+      body: PostTaskRequest,
+      response: {
+        200: GetOneTaskResponse
+      }
+    },
     /**
      * handles the request for a given route
      *
@@ -17,9 +28,9 @@ exports.create = app => {
       const { body } = request;
       // get text and isDone with default false from body, regardless if it has
       // a object value or null, which makes it return an empty object.
-      const { text, isDone = false } = body || {};
+      const { text, isDone = false } = body;
 
-      if (!text) {
+/*       if (!text) {
         return response
           .code(400)
           .send({
@@ -27,7 +38,7 @@ exports.create = app => {
             code: 'task/malformed',
             message: 'Payload doesn\'t have text property'
           });
-      }
+      } */
 
       const data = new Task({
         text,

@@ -1,4 +1,6 @@
 const { Task } = require('../../db');
+const { definitions } = require('../../definitions');
+const { SuccessResponse, GetOneTaskParams } = definitions;
 
 /**
  * Deletes one task
@@ -6,30 +8,42 @@ const { Task } = require('../../db');
  * @param {*} app
  */
 exports.deleteOne = app => {
+  app.delete('/task/:id', {
+    schema: {
+      description: 'Delete one task',
+      tags: ['Task'],
+      summary: 'Delete one task',
+      params: GetOneTaskParams,
+      response: {
+        200: SuccessResponse
+      }
+    }, 
   /**
    * This deletes one task from the database given a unique ID
    *
    * @param {import('fastify').FastifyRequest} request
    * @param {import('fastify').FastifyReply<Response>} response
    */
-  app.delete('/task/:id', async (request, response) => {
-    const { params } = request;
-    const { id } = params;
+    handler: async (request, response) => {
+      const { params } = request;
+      const { id } = params;
 
-    const data = await Task.findOneAndDelete({ id }).exec();
 
-    if (!data) {
-      return response
-        .code(404)
-        .send({
-          success: false,
-          code: 'task/not-found',
-          message: 'Task doesn\'t exist'
-        });
+      const data = await Task.findOneAndDelete({ id }).exec();
+
+      if (!data) {
+        return response
+          .code(404)
+          .send({
+            success: false,
+            code: 'task/not-found',
+            message: 'Task doesn\'t exist'
+          });
+      }
+
+      return {
+        success: true
+      };
     }
-
-    return {
-      success: true
-    };
   });
 };
