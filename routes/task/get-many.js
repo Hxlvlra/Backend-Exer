@@ -51,11 +51,11 @@ exports.getMany = app => {
         options.dateCreated.$gte = startDateCreated;
       }
       if (endDateCreated) {
-        options.dateCreated = options.dateUpdated || {};
+        options.dateCreated = options.dateCreated || {};
         options.dateCreated.$lte = endDateCreated;
       }
       if (startDateUpdated) {
-        options.dateUpdated = options.dateUpdated || {};
+        options.dateUpdated = {};
         options.dateUpdated.$gte = startDateUpdated;
       }
       if (endDateUpdated) {
