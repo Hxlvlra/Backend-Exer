@@ -31,6 +31,11 @@ exports.login = app => {
 
       const user = await User.findOne({ username }).exec();
 
+      if(!user){
+        return response
+        .unauthorized('auth/no-user')
+      }
+
       if (!(await bcrypt.compare(password, user.password))) {
         return response
         .unauthorized('auth/wrong-password')
@@ -39,6 +44,8 @@ exports.login = app => {
       const data = app.jwt.sign({
         username
       })
+
+      request.session.token = data;
 
       return {
         success: true,

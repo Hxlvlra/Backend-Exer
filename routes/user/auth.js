@@ -1,8 +1,5 @@
-const bcrypt = require('bcrypt');
-const { User } = require('../../db');
 const { definitions } = require('../../definitions');
-const { SuccessResponse, PostUserRequest } = definitions;
-const saltRounds = 10;
+const { SuccessResponse } = definitions;
 
 /**
  * this is the route for checking if the user is authenticated
