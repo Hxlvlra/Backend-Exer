@@ -30,12 +30,7 @@ exports.getMany = app => {
 
       if (parseInt(limit) > 50) {
         return response
-          .code(400)
-          .send({
-            success: false,
-            code: 'task/malformed',
-            message: 'Query limit exceeded'
-          });
+        .badRequest('request/malformed');
       }
 
       const options = {};

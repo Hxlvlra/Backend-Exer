@@ -34,12 +34,7 @@ exports.create = app => {
       
       if(user){
         return response
-          .code(403)
-          .send({
-            success: false,
-            code: 'forbidden',
-            message: 'Username already exists'
-          });
+        .forbidden('forbidden')
       }
 
       const hash = await bcrypt.hash(password, saltRounds);

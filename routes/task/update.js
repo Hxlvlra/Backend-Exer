@@ -34,24 +34,14 @@ exports.update = app => {
       // expect that we should be getting at least a text or a isDone property
       if (!text && (isDone === null || isDone === undefined)) {
         return response
-          .code(400)
-          .send({
-            success: false,
-            code: 'task/malformed',
-            message: 'Payload doesn\'t have text and isDone property'
-          });
+        .badRequest('request/malformed');
       }
 
       const oldData = await Task.findOne({ id }).exec();
 
       if (!oldData) {
         return response
-          .code(404)
-          .send({
-            success: false,
-            code: 'task/not-found',
-            message: 'Task doesn\'t exist'
-          });
+        .notFound('task/not-found')
       }
 
       const update = {};

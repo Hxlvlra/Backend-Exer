@@ -33,12 +33,7 @@ exports.deleteOne = app => {
 
       if (!data) {
         return response
-          .code(404)
-          .send({
-            success: false,
-            code: 'task/not-found',
-            message: 'Task doesn\'t exist'
-          });
+        .notFound('task/not-found')
       }
 
       return {

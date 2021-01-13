@@ -33,12 +33,7 @@ exports.login = app => {
 
       if (!(await bcrypt.compare(password, user.password))) {
         return response
-          .code(401)
-          .send({
-            success: false,
-            code: 'auth/unauthorized',
-            message: 'Wrong password'
-          });
+        .unauthorized('auth/wrong-password')
       }
 
       return {
