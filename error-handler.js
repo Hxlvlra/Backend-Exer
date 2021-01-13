@@ -1,5 +1,5 @@
 /**
- * handles errors
+ * For error reporting
  * 
  * @param {Error} error
  * @param {import('fastify').FastifyRequest} request
