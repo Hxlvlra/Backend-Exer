@@ -16,8 +16,16 @@ exports.get = app => {
       params: GetOneTaskParams,
       response: {
         200: GetOneTaskResponse
-      }
+      },
+      security: [
+        {
+          bearer: []
+        }
+      ]
     },
+    preHandler: app.auth([
+      app.verifyJWT
+    ]),
     /**
      * This gets one tasks from the database give a unique ID
      *
@@ -25,11 +33,12 @@ exports.get = app => {
      * @param {import('fastify').FastifyReply<Response>} response
      */
     handler: async (request, response) => {
-      const { params } = request;
+      const { params, user } = request;
+      const { username } = user;
       const { id } = params;
 
-      const data = await Task.findOne({ id }).exec();
-
+      const data = await Task.findOne({ id, username }).exec();
+      
       if (!data) {
         return response
         .notFound('task/not-found')

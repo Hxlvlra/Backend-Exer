@@ -17,8 +17,16 @@ exports.update = app => {
       params: GetOneTaskParams,
       response: {
         200: GetOneTaskResponse
-      }
+      },
+      security: [
+        {
+          bearer: []
+        }
+      ]
     },
+    preHandler: app.auth([
+      app.verifyJWT
+    ]),
     /**
      * This updates one task from the database give a unique ID and a payload
      *
@@ -26,7 +34,8 @@ exports.update = app => {
      * @param {import('fastify').FastifyReply<Response>} response
      */
     handler: async (request, response) => {
-      const { params, body } = request;
+      const { params, body, user } = request;
+      const { username } = user;
       const { id } = params;
       // get text and isDone from body.
       const { text, isDone } = body;
@@ -37,7 +46,7 @@ exports.update = app => {
         .badRequest('request/malformed');
       }
 
-      const oldData = await Task.findOne({ id }).exec();
+      const oldData = await Task.findOne({ id, username }).exec();
 
       if (!oldData) {
         return response

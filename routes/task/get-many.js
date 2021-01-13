@@ -16,8 +16,16 @@ exports.getMany = app => {
       query: GetManyTaskQuery,
       response: {
         200: GetManyTaskResponse
-      }
+      },
+      security: [
+        {
+          bearer: []
+        }
+      ]
     },
+    preHandler: app.auth([
+      app.verifyJWT
+    ]),
     /**
      * handles the request for a given route
      *
@@ -25,8 +33,13 @@ exports.getMany = app => {
      * @param {import('fastify').FastifyReply<Response>} response
      */
     handler: async (request, response) => {
-      const { query } = request;
+      const { query, user } = request;
+      const { username } = user;
       const { limit = 10, startDateCreated, endDateCreated, startDateUpdated, endDateUpdated } = query;
+
+      const options = {
+        username
+      };
 
       if (parseInt(limit) > 50) {
         return response

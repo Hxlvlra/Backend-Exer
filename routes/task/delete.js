@@ -16,8 +16,16 @@ exports.deleteOne = app => {
       params: GetOneTaskParams,
       response: {
         200: SuccessResponse
-      }
-    }, 
+      },
+      security: [
+        {
+          bearer: []
+        }
+      ]
+    },
+    preHandler: app.auth([
+      app.verifyJWT
+    ]),
   /**
    * This deletes one task from the database given a unique ID
    *
@@ -27,7 +35,6 @@ exports.deleteOne = app => {
     handler: async (request, response) => {
       const { params } = request;
       const { id } = params;
-
 
       const data = await Task.findOneAndDelete({ id }).exec();
 

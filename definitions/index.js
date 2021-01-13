@@ -55,6 +55,7 @@ const TaskFullData = {
     id: UniqueIDData,
     text: TextData,
     isDone: IsDoneData,
+    username: UsernameData,
     dateUpdated: DateData,
     dateCreated: DateData
   }
