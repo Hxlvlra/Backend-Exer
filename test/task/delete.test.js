@@ -6,7 +6,7 @@ require('tap').mochaGlobals();
 
 describe('For the route for deleting one task DELETE: (/task/:id)', () => {
   let app;
-  let authorization;
+  let authorization = '';
   const ids = [];
 
   before(async () => {

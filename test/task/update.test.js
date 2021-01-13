@@ -6,6 +6,7 @@ require('tap').mochaGlobals();
 
 describe('For the route for updating one task PUT: (/task/:id)', () => {
   let app;
+  let authorization = '';
   const ids = [];
 
   before(async () => {

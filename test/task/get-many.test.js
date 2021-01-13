@@ -6,6 +6,7 @@ require('tap').mochaGlobals();
 
 describe('For the route for getting many tasks GET: (/task)', () => {
   let app;
+  let authorization = '';
   const ids = [];
 
   before(async () => {
